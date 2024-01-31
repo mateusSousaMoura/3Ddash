@@ -121,33 +121,9 @@ void drawPlane(float x, float y, float z, int heightIndex) {
     glEnd();
 }
 
-void checkCollision() {
-    // Posições do cubo
-    float cubeX = cameraX;
-    float cubeZ = 0.0f;
-
-    // Verifica a colisão com cada pirâmide
-    for (int i = 0; i < numRows; i++) {
-        for (int j = 0; j < numCols; j++) {
-            if (matrix[i][j] == 1) {  // Verifica se há uma pirâmide nesta posição
-                float pyramidX = j * 2.0f - numCols;  // Calcula a posição x da pirâmide
-                float pyramidZ = i * 2.0f - numRows;  // Calcula a posição z da pirâmide
-
-                // Verifica a colisão entre o cubo e a pirâmide
-                if (fabs(cubeX - pyramidX) < 1.0f && fabs(cubeZ - pyramidZ) < 1.0f) {
-                    // Colisão detectada, reinicia o nível
-                    cameraX = 0.0f;
-                    cubeY = 0.0f;
-                    jumping = false;
-                    break;
-                }
-            }
-        }
-    }
-}
-
 void update(int value) {
     cameraX += cameraSpeed;
+    
 
     if (cameraX > (numCols - 1) * pyramidLength) {
         cameraX = 0.0f;
@@ -180,7 +156,7 @@ void display() {
               0.0f, 1.0f, 0.0f);
 
     drawGround();
-    checkCollision();
+    
 
     float spacingX = pyramidLength;
 
