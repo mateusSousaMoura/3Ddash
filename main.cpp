@@ -30,10 +30,13 @@ bool jumping = false;       // Flag indicando se o cubo está pulando
 void drawGround() {
     glBegin(GL_QUADS);
     glColor3d(0.5, 0.5, 0.5);
-    glVertex3f(-50.0f, 0.0f, -50.0f);
-    glVertex3f(50.0f, 0.0f, -50.0f);
-    glVertex3f(50.0f, 0.0f, 50.0f);
-    glVertex3f(-50.0f, 0.0f, 50.0f);
+
+    // Ajuste os valores de X para estender mais na horizontal
+    glVertex3f(-200.0f, 0.0f, -50.0f);
+    glVertex3f(200.0f, 0.0f, -50.0f);
+    glVertex3f(200.0f, 0.0f, 50.0f);
+    glVertex3f(-200.0f, 0.0f, 50.0f);
+
     glEnd();
 }
 
