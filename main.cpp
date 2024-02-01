@@ -1,6 +1,8 @@
     #include <GL/glut.h>
     #include <cmath>
     #include <cstdlib>
+    #include <string>
+    #include <sstream>
 
     const int numRows = 20;
     const int numCols = 200;
@@ -35,6 +37,9 @@
     float cubeY = 0.0f;         // Altura do cubo
     float jumpHeight = 14.0f;
     float jumpBaseHeight = 0.0f;
+    std::string keyInfo = "JUMP: SPACE PAUSE: 'h' EXIT: 'Esc'";
+	float fps = 0.0f;
+	std::string fpsString;
     bool onGround = true;
     bool paused = false;
 
@@ -247,6 +252,25 @@
     }
 
     void update(int value) {
+    	// Calculate FPS
+	    static int frameCount = 0;
+	    static int previousTime = glutGet(GLUT_ELAPSED_TIME);
+	    int currentTime = glutGet(GLUT_ELAPSED_TIME);
+	    int elapsedTime = currentTime - previousTime;
+	
+	    frameCount++;
+	
+	    if (elapsedTime > 1000) {
+	        fps = static_cast<float>(frameCount) / (elapsedTime / 1000.0f);
+	        frameCount = 0;
+	        previousTime = currentTime;
+	
+	        // Update fpsString
+	        std::ostringstream fpsStream;
+	        fpsStream << "FPS: " << fps;
+	        fpsString = fpsStream.str();
+	    }
+
     	if(!paused){
 	        cameraX += cameraSpeed;
 	        checkOnGround();	
@@ -284,6 +308,7 @@
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
 
+
         gluLookAt(cameraX + 4.0f, 20.0f, 100.0f,
                 cameraX, cubeY + cubeHeight / 2, 0.0f,
                 0.0f, 1.0f, 0.0f);
@@ -304,9 +329,27 @@
                 }
             }
         }
-
         // Desenha o cubo na mesma reta das pirâmides
         drawCube(cameraX, cubeY, 0.0f, pyramidLength, cubeHeight);
+        
+		float textVerticalOffset = 20.0f;
+        glColor3f(1.0f, 1.0f, 1.0f); // Set text color to white
+
+	    // Set position for text (adjusted for camera movement)
+	    glRasterPos2f(-15.0f + cameraX, 0.9f + textVerticalOffset);
+	
+	    // Display key information
+	    for (size_t i = 0; i < keyInfo.length(); ++i) {
+	        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, keyInfo[i]);
+	    }
+	
+	    // Set position for FPS text (adjusted for camera movement)
+	    glRasterPos2f(-25.0f + cameraX, 0.8f + textVerticalOffset);
+	
+	    // Display FPS information
+	    for (size_t i = 0; i < fpsString.length(); ++i) {
+	        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, fpsString[i]);
+	    }
 
         glutSwapBuffers();
     }
