@@ -36,6 +36,8 @@
     float jumpHeight = 14.0f;
     float jumpBaseHeight = 0.0f;
     bool onGround = true;
+    bool paused = false;
+
 
     bool jumping = false;       // Flag indicando se o cubo está pulando
     
@@ -189,28 +191,30 @@
     }
 
     void update(int value) {
-        cameraX += cameraSpeed;
-        checkOnGround();	
-        
-
-        if (cameraX > (numCols - 1) * pyramidLength) {
-            cameraX = 0.0f;
-        }
-        if (jumping) {
-   	        cubeY += jumpSpeed;
-
-            // Verifica se o cubo atingiu a altura máxima do pulo
-            if (cubeY >= jumpBaseHeight + jumpHeight) {
-                jumping = false;
-            }
-        } else {
-            // Aplica a gravidade ao cubo
-            // Impede que o cubo vá abaixo do solo
-            if (!onGround) {
-                cubeY -= jumpSpeed;
-            }
-        }
-        glutPostRedisplay();
+    	if(!paused){
+	        cameraX += cameraSpeed;
+	        checkOnGround();	
+	        
+	
+	        if (cameraX > (numCols - 1) * pyramidLength) {
+	            cameraX = 0.0f;
+	        }
+	        if (jumping) {
+	   	        cubeY += jumpSpeed;
+	
+	            // Verifica se o cubo atingiu a altura máxima do pulo
+	            if (cubeY >= jumpBaseHeight + jumpHeight) {
+	                jumping = false;
+	            }
+	        } else {
+	            // Aplica a gravidade ao cubo
+	            // Impede que o cubo vá abaixo do solo
+	            if (!onGround) {
+	                cubeY -= jumpSpeed;
+	            }
+	        }
+	        glutPostRedisplay();
+		}
         glutTimerFunc(16, update, 0); // 60 FPS
     }
 
@@ -260,6 +264,9 @@
                 jumping = true;
             }
             break;
+        case 'h':
+	        paused = !paused;
+	        break;
         case 27:
             exit(0);
             break;
