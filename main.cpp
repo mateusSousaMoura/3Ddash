@@ -309,9 +309,13 @@
         glLoadIdentity();
 
 
-        gluLookAt(cameraX + 4.0f, 20.0f, 100.0f,
-                cameraX, cubeY + cubeHeight / 2, 0.0f,
-                0.0f, 1.0f, 0.0f);
+        // gluLookAt(cameraX + 4.0f, 20.0f, 100.0f,
+        //         cameraX, cubeY + cubeHeight / 2, 0.0f,
+        //         0.0f, 1.0f, 0.0f);
+        
+        gluLookAt(cameraX + 3.0f, 15.0f, 70.0f,
+          cameraX, cubeY + cubeHeight / 2, 0.0f,
+          0.0f, 1.0f, 0.0f);
 
         drawGround();
         
