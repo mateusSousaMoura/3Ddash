@@ -69,31 +69,33 @@
         glVertex3f(-50.0f, 0.0f, 50.0f);
         glEnd();
     }
+    
+
     bool checkGroundCollision(float cubeX, float cubeY, float cubeZ, float sideLength) {
-    float cubeHalfSide = sideLength / 2;
-
-    for (int j = 0; j < numCols; ++j) {
-        float planeX = static_cast<float>(j) * pyramidLength - 50.0f;
-
-        for (int i = 0; i < numRows; ++i) {
-            if (matrix[i][j] == 2) {
-                float planeY = i * pyramidLength;
-                
-                // Check collision in x direction
-                if (cubeX + cubeHalfSide > planeX - pyramidLength / 2 &&
-                    cubeX - cubeHalfSide < planeX + pyramidLength / 2) {
-
-                    // Check collision in y direction
-                    if (cubeY >= planeY && cubeY <= planeY + pyramidLength) {
-                        return true; // Collision detected
-                    }
-                }
-            }
-        }
-    }
-
-    return false; // No collision detected
-	}
+	    float cubeHalfSide = sideLength / 2;
+	
+	    for (int j = 0; j < numCols; ++j) {
+	        float planeX = static_cast<float>(j) * pyramidLength - 50.0f;
+	
+	        for (int i = 0; i < numRows; ++i) {
+	            if (matrix[i][j] == 2) {
+	                float planeY = i * pyramidLength;
+	                
+	                // Check collision in x direction
+	                if (cubeX + cubeHalfSide > planeX - pyramidLength / 2 &&
+	                    cubeX - cubeHalfSide < planeX + pyramidLength / 2) {
+	
+	                    // Check collision in y direction
+	                    if (cubeY >= planeY && cubeY <= planeY + pyramidLength) {
+	                        return true; // Collision detected
+	                    }
+	                }
+	            }
+	        }
+	    }
+	
+	    return false; // No collision detected
+		}
     
     void checkOnGround(){
     	bool a = checkGroundCollision(cameraX, cubeY, 0.0f, pyramidLength);
@@ -104,6 +106,60 @@
 			onGround = false;
 		}
 	}
+	
+	bool checkCollision(float x1, float y1, float z1, float x2, float y2, float z2, float objectWidth, float objectHeight) {
+	    return (
+	        x1 - objectWidth / 2 < x2 + pyramidLength / 2 &&
+	        x1 + objectWidth / 2 > x2 - pyramidLength / 2 &&
+	        y1 < y2 + pyramidLength &&
+	        y1 + objectHeight > y2
+	    );
+	}
+	
+	bool checkPausePyramidCollision(float cubeX, float cubeY, float cubeZ, float cubeSideLength, float cubeHeight) {
+	    float cubeHalfSide = cubeSideLength / 2;
+	    float cubeHalfHeight = cubeHeight / 2;
+	
+	    for (int j = 0; j < numCols; ++j) {
+	        float pyramidX = static_cast<float>(j) * pyramidLength - 50.0f;
+	
+	        for (int i = 0; i < numRows; ++i) {
+	            if (matrix[i][j] == 1) {
+	                float pyramidY = i * pyramidLength;
+	
+	                // Check collision in x, y, and z directions for points on the cube
+	                if (checkCollision(cubeX, cubeY, cubeZ, pyramidX, pyramidY, 0.0f, pyramidLength, pyramidLength)) {
+	                    return true; // Collision detected, pause the game
+	                }
+	            }
+	        }
+	    }
+	
+	    return false; // No collision detected
+	}
+	
+	bool checkPauseCollision(float cubeX, float cubeY, float cubeZ, float cubeHeight) {
+	    float cubeHalfHeight = cubeHeight / 2;
+	
+	    for (int j = 0; j < numCols; ++j) {
+	        float planeX = static_cast<float>(j) * pyramidLength - 50.0f;
+	
+	        for (int i = 0; i < numRows; ++i) {
+	            if (matrix[i][j] == 2) {
+	                float planeY = i * pyramidLength;
+	
+	                // Check collision in x and y directions for points above cubeY
+	                if (checkCollision(cubeX, cubeY + cubeHalfHeight, cubeZ, planeX, planeY, 0.0f, pyramidLength, pyramidLength)) {
+	                    return true; // Collision detected, pause the game
+	                }
+	            }
+	        }
+	    }
+	
+	    return false; // No collision detected
+	}
+
+
 
 
     void drawPyramid(float x, float y, float z, int heightIndex) {
@@ -213,6 +269,12 @@
 	                cubeY -= jumpSpeed;
 	            }
 	        }
+	        if (checkPauseCollision(cameraX, cubeY, 0.0f, cubeHeight)) {
+                paused = true;
+            }
+            if (checkPausePyramidCollision(cameraX, cubeY, 0.0f, pyramidLength, cubeHeight)) {
+                paused = true;
+            }
 	        glutPostRedisplay();
 		}
         glutTimerFunc(16, update, 0); // 60 FPS
