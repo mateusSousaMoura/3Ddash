@@ -110,6 +110,15 @@
     bool onGround = true;
     bool paused = true;
     int level = 0;
+    bool pausable = true;
+    
+    enum victoryState{
+		WIN,
+		LOSE,
+		NOTHING
+	};
+	
+	victoryState atualState = NOTHING;
 
 	enum GameState {
 	    MENU,
@@ -357,7 +366,93 @@
         glEnd();
     }
 
-    void update(int value) {
+	void drawMenu() {
+	int menuItemHeight = 40;
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    // Draw the title "Geometry Dash"
+    glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for the title
+    const char* title = "Geometry Dash";
+    int titleWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)title);
+    glRasterPos2f((glutGet(GLUT_WINDOW_WIDTH) - titleWidth) / 2, glutGet(GLUT_WINDOW_HEIGHT) - 50);
+    for (const char* p = title; *p; ++p) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+    }
+
+    // Draw the victory state message
+    glColor3f(1.0f, 1.0f, 1.0f); // White color for text
+    const char* victoryMessage = "";
+    switch (atualState) {
+        case WIN:
+            victoryMessage = "You Win!";
+            break;
+        case LOSE:
+            victoryMessage = "You Lose!";
+            break;
+        case NOTHING:
+            // No victory state message to display
+            break;
+        default:
+            break;
+    }
+
+    if (atualState != NOTHING) {
+        int victoryMessageWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)victoryMessage);
+        int x = (glutGet(GLUT_WINDOW_WIDTH) - victoryMessageWidth) / 2;
+        int y = (glutGet(GLUT_WINDOW_HEIGHT) - 2 * menuItemHeight);
+
+        glRasterPos2f(x, y);
+        for (const char* p = victoryMessage; *p; ++p) {
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+        }
+    }
+
+    // Draw the menu options
+    glColor3f(0.5f, 0.3f, 1.0f); // Color for menu options
+    const char* menuItems[] = {"Iniciar Jogo", "1 para Level 1", "2 para Level 2", "3 para Level 3", "Sair"};
+    int numItems = sizeof(menuItems) / sizeof(menuItems[0]);
+
+    for (int i = 0; i < numItems; ++i) {
+        int textWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)menuItems[i]);
+        int x = (glutGet(GLUT_WINDOW_WIDTH) - textWidth) / 2;
+        int y = (glutGet(GLUT_WINDOW_HEIGHT) - menuItemHeight) / 2 - i * menuItemHeight;
+
+        // Draw rectangle around the menu option
+        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for rectangles
+        glBegin(GL_QUADS);
+            glVertex2f(x - 10, y - 10); // Bottom-left
+            glVertex2f(x + textWidth + 10, y - 10); // Bottom-right
+            glVertex2f(x + textWidth + 10, y + 24); // Top-right
+            glVertex2f(x - 10, y + 24); // Top-left
+        glEnd();
+
+        // Draw the text of the menu option
+        glColor3f(1.0f, 1.0f, 1.0f); // White color for text
+        glRasterPos2f(x, y);
+        for (const char* p = menuItems[i]; *p; ++p) {
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+        }
+    }
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glEnable(GL_DEPTH_TEST);
+
+    glutSwapBuffers();
+}
+
+	
+	 void update(int value) {
     	// Calculate FPS
 	    static int frameCount = 0;
 	    static int previousTime = glutGet(GLUT_ELAPSED_TIME);
@@ -400,72 +495,17 @@
 	            }
 	        }
 	        if (checkPauseCollision(cameraX, cubeY, 0.0f, cubeHeight)) {
-                paused = true;
+	        	atualState = LOSE;
+                currentState = MENU;
             }
             if (checkPausePyramidCollision(cameraX, cubeY, 0.0f, pyramidLength, cubeHeight)) {
-                paused = true;
+            	atualState = LOSE;
+                currentState = MENU;
             }
 	        glutPostRedisplay();
 		}
         glutTimerFunc(16, update, 0); // 60 FPS
     }
-
-	void drawMenu() {
-	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	    glDisable(GL_DEPTH_TEST);
-	    glDisable(GL_LIGHTING);
-	
-	    glMatrixMode(GL_PROJECTION);
-	    glPushMatrix();
-	    glLoadIdentity();
-	    gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
-	
-	    glMatrixMode(GL_MODELVIEW);
-	    glLoadIdentity();
-	
-	    // Draw the title "Geometry Dash"
-	    glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for the title
-	    const char* title = "Geometry Dash";
-	    int titleWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)title);
-	    glRasterPos2f((glutGet(GLUT_WINDOW_WIDTH) - titleWidth) / 2, glutGet(GLUT_WINDOW_HEIGHT) - 50);
-	    for (const char* p = title; *p; ++p) {
-	        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
-	    }
-	
-	    // Draw the menu options
-	    glColor3f(0.5f, 0.3f, 1.0f); // Color for menu options
-	    const char* menuItems[] = {"Iniciar Jogo", "1 para Level 1", "2 para Level 2", "3 para Level 3", "Sair"};
-	    int numItems = sizeof(menuItems) / sizeof(menuItems[0]);
-	    int menuItemHeight = 40; // Increase height to accommodate rectangles
-	
-	    for (int i = 0; i < numItems; ++i) {
-	        int textWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)menuItems[i]);
-	        int x = (glutGet(GLUT_WINDOW_WIDTH) - textWidth) / 2;
-	        int y = (glutGet(GLUT_WINDOW_HEIGHT) - menuItemHeight) / 2 - i * menuItemHeight;
-	
-	        // Draw rectangle around the menu option
-	        glColor3f(0.0f, 0.0f, 1.0f); // Blue color for rectangles
-	        glBegin(GL_QUADS);
-	            glVertex2f(x - 10, y - 10); // Bottom-left
-	            glVertex2f(x + textWidth + 10, y - 10); // Bottom-right
-	            glVertex2f(x + textWidth + 10, y + 24); // Top-right
-	            glVertex2f(x - 10, y + 24); // Top-left
-	        glEnd();
-	
-	        // Draw the text of the menu option
-	        glColor3f(1.0f, 1.0f, 1.0f); // White color for text
-	        glRasterPos2f(x, y);
-	        for (const char* p = menuItems[i]; *p; ++p) {
-	            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
-	        }
-	    }
-	
-	    glMatrixMode(GL_PROJECTION);
-	    glPopMatrix();
-	    glEnable(GL_DEPTH_TEST);
-	
-	    glutSwapBuffers();
-	}
 
 
 
@@ -563,7 +603,10 @@
 	                }
 	                break;
 	            case 'h':
-	                paused = !paused;
+	            	if(pausable){
+	                	paused = !paused;
+	                	pausable =  false;
+					}
 	                break;
 	            case 27:
 	                exit(0);
