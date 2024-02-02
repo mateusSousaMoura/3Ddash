@@ -323,20 +323,37 @@ void drawMenu() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    glColor3f(0.5f, 0.3f, 1.0f); // Cor do texto
+    // Desenha o título "Geometry Dash"
+    glColor3f(1.0f, 1.0f, 0.0f); // Cor amarela para o título
+    const char* title = "Geometry Dash";
+    int titleWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)title);
+    glRasterPos2f((glutGet(GLUT_WINDOW_WIDTH) - titleWidth) / 2, glutGet(GLUT_WINDOW_HEIGHT) - 50);
+    for (const char* p = title; *p; ++p) {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+    }
 
+    // Desenha as opções do menu
+    glColor3f(0.5f, 0.3f, 1.0f); // Cor para as opções do menu
     const char* menuItems[] = {"Iniciar Jogo", "Sair"};
     int numItems = sizeof(menuItems) / sizeof(menuItems[0]);
-    int menuItemHeight = 20; // Altura entre os itens do menu
-
-    // Tamanho médio de um caractere para GLUT_BITMAP_TIMES_ROMAN_24
-    int charWidth = 12;
+    int menuItemHeight = 40; // Aumenta a altura para acomodar os retângulos
 
     for (int i = 0; i < numItems; ++i) {
-        int textWidth = charWidth * strlen(menuItems[i]); // Aproximação do comprimento do texto
-        int x = (glutGet(GLUT_WINDOW_WIDTH) - textWidth) / 2; // Centraliza o texto
-        int y = (glutGet(GLUT_WINDOW_HEIGHT) - menuItemHeight) / 2 - i * menuItemHeight; // Posiciona os itens verticalmente
+        int textWidth = glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)menuItems[i]);
+        int x = (glutGet(GLUT_WINDOW_WIDTH) - textWidth) / 2;
+        int y = (glutGet(GLUT_WINDOW_HEIGHT) - menuItemHeight) / 2 - i * menuItemHeight;
 
+        // Desenha retângulo ao redor da opção do menu
+        glColor3f(0.0f, 0.0f, 1.0f); // Cor azul para os retângulos
+        glBegin(GL_QUADS);
+            glVertex2f(x - 10, y - 10); // Esquerda inferior
+            glVertex2f(x + textWidth + 10, y - 10); // Direita inferior
+            glVertex2f(x + textWidth + 10, y + 24); // Direita superior
+            glVertex2f(x - 10, y + 24); // Esquerda superior
+        glEnd();
+
+        // Desenha o texto da opção do menu
+        glColor3f(1.0f, 1.0f, 1.0f); // Cor branca para o texto
         glRasterPos2f(x, y);
         for (const char* p = menuItems[i]; *p; ++p) {
             glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
@@ -349,6 +366,7 @@ void drawMenu() {
 
     glutSwapBuffers();
 }
+
 
 
 
