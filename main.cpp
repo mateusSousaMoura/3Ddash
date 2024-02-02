@@ -43,6 +43,12 @@
     bool onGround = true;
     bool paused = true;
 
+	enum GameState {
+    MENU,
+    GAME_RUNNING
+};
+
+    GameState currentState = MENU;
 
     bool jumping = false;       // Flag indicando se o cubo está pulando
     
@@ -304,18 +310,60 @@
         glutTimerFunc(16, update, 0); // 60 FPS
     }
 
+void drawMenu() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    gluOrtho2D(0.0, glutGet(GLUT_WINDOW_WIDTH), 0.0, glutGet(GLUT_WINDOW_HEIGHT));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glColor3f(0.5f, 0.3f, 1.0f); // Cor do texto
+
+    const char* menuItems[] = {"Iniciar Jogo", "Sair"};
+    int numItems = sizeof(menuItems) / sizeof(menuItems[0]);
+    int menuItemHeight = 20; // Altura entre os itens do menu
+
+    // Tamanho médio de um caractere para GLUT_BITMAP_TIMES_ROMAN_24
+    int charWidth = 12;
+
+    for (int i = 0; i < numItems; ++i) {
+        int textWidth = charWidth * strlen(menuItems[i]); // Aproximação do comprimento do texto
+        int x = (glutGet(GLUT_WINDOW_WIDTH) - textWidth) / 2; // Centraliza o texto
+        int y = (glutGet(GLUT_WINDOW_HEIGHT) - menuItemHeight) / 2 - i * menuItemHeight; // Posiciona os itens verticalmente
+
+        glRasterPos2f(x, y);
+        for (const char* p = menuItems[i]; *p; ++p) {
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *p);
+        }
+    }
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glEnable(GL_DEPTH_TEST);
+
+    glutSwapBuffers();
+}
+
+
+
+
     void display() {
+    if (currentState == MENU) {
+        drawMenu();
+    } else {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glLoadIdentity();
 
 
-        // gluLookAt(cameraX + 4.0f, 20.0f, 100.0f,
-        //         cameraX, cubeY + cubeHeight / 2, 0.0f,
-        //         0.0f, 1.0f, 0.0f);
-        
-        gluLookAt(cameraX + 3.0f, 15.0f, 70.0f,
-          cameraX, cubeY + cubeHeight / 2, 0.0f,
-          0.0f, 1.0f, 0.0f);
+        gluLookAt(cameraX + 4.0f, 20.0f, 100.0f,
+                cameraX, cubeY + cubeHeight / 2, 0.0f,
+                0.0f, 1.0f, 0.0f);
 
         drawGround();
         
@@ -357,6 +405,8 @@
 
         glutSwapBuffers();
     }
+    }
+
 
     void reshape(int width, int height) {
         glViewport(0, 0, width, height);
@@ -366,43 +416,56 @@
         glMatrixMode(GL_MODELVIEW);
     }
 
-    void keyboard(unsigned char key, int x, int y) {
+void keyboard(unsigned char key, int x, int y) {
+    if (currentState == MENU) {
         switch (key) {
-        case ' ':
-            if (!jumping && onGround) {
-                jumping = true;
-            }
-            break;
-        case 'h':
-	        paused = !paused;
-	        break;
-        case 27:
-            exit(0);
-            break;
+            case 13: // Enter
+                currentState = GAME_RUNNING;
+                break;
+            case 27: // Esc
+                exit(0);
+                break;
+        }
+    } else {
+        switch (key) {
+            case ' ':
+                if (!jumping && onGround) {
+                    jumping = true;
+                }
+                break;
+            case 'h':
+                paused = !paused;
+                break;
+            case 27:
+                exit(0);
+                break;
         }
     }
+    glutPostRedisplay(); // Marcar a janela para ser redesenhada
+}
 
-    void init() {
+
+    void init(){
         glEnable(GL_DEPTH_TEST);
     }
 
-    void runGame() {
-        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-        glutCreateWindow("Jogo de Pirâmides com Cubo");
-        
-        init_lighting(); // Inicialização de iluminação
+void runGame() {
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutCreateWindow("Jogo de Pirâmides com Cubo");
+    
+    init_lighting(); // Inicialização de iluminação
 
-        glutDisplayFunc(display);
-        glutReshapeFunc(reshape);
-        glutTimerFunc(0, update, 0);
-        glutKeyboardFunc(keyboard);
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutTimerFunc(0, update, 0);
+    glutKeyboardFunc(keyboard);
 
-        glutMainLoop();
-    }
+    glutMainLoop();
+}
 
-    int main(int argc, char** argv) {
-        glutInit(&argc, argv);
-        init();
-        runGame();
-        return 0;
-    }
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    init();
+    runGame();
+    return 0;
+}
