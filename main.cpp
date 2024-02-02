@@ -4,6 +4,7 @@
     #include <string>
     #include <sstream>
     #include <iostream>
+    #include "MMSystem.h"
 
     const int numRows = 20;
     const int numCols = 200;
@@ -129,7 +130,7 @@
 
     bool jumping = false;       // Flag indicando se o cubo está pulando
     
-    void init_lighting() {
+       void init_lighting() {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	
@@ -144,6 +145,8 @@
 	    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient_diffuse);
 	    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 	    glEnable(GL_COLOR_MATERIAL);
+	    PlaySound(TEXT("C:/Users/emili/Downloads/1-02.-Stereo-Madness.wav"), NULL, SND_ASYNC | SND_FILENAME | SND_LOOP);
+
 	
 	    glShadeModel(GL_SMOOTH);
 	}
@@ -452,7 +455,7 @@
 }
 
 	
-	 void update(int value) {
+	    void update(int value) {
     	// Calculate FPS
 	    static int frameCount = 0;
 	    static int previousTime = glutGet(GLUT_ELAPSED_TIME);
@@ -495,17 +498,18 @@
 	            }
 	        }
 	        if (checkPauseCollision(cameraX, cubeY, 0.0f, cubeHeight)) {
-	        	atualState = LOSE;
-                currentState = MENU;
+                paused = true;
+                 PlaySound(TEXT("D:\cc\5p\cg\geometry_dash_musicas\endgame.wav"), NULL, SND_ASYNC | SND_FILENAME);
             }
             if (checkPausePyramidCollision(cameraX, cubeY, 0.0f, pyramidLength, cubeHeight)) {
-            	atualState = LOSE;
-                currentState = MENU;
+                paused = true;
+                 PlaySound(TEXT("D:\cc\5p\cg\geometry_dash_musicas\endgame.wav"), NULL, SND_ASYNC | SND_FILENAME);
             }
 	        glutPostRedisplay();
 		}
         glutTimerFunc(16, update, 0); // 60 FPS
     }
+
 
 
 
