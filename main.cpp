@@ -444,7 +444,7 @@
 
     // Draw the menu options
     glColor3f(0.5f, 0.3f, 1.0f); // Color for menu options
-    const char* menuItems[] = {"Iniciar Jogo", "1 para Level 1", "2 para Level 2", "3 para Level 3", "Sair"};
+    const char* menuItems[] = {"Enter para Iniciar Jogo", "1 para Level 1", "2 para Level 2", "3 para Level 3", "Esc para Sair"};
     int numItems = sizeof(menuItems) / sizeof(menuItems[0]);
 
     for (int i = 0; i < numItems; ++i) {
@@ -558,7 +558,10 @@
         drawMenu();
     } else {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glLoadIdentity();
+        glEnable(GL_DEPTH_TEST);
+	    glEnable(GL_LIGHTING);
+	    glMatrixMode(GL_MODELVIEW);
+	    glLoadIdentity();
 
 
         gluLookAt(cameraX + 2.0f, 20.0f, 100.0f,
